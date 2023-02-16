@@ -8,6 +8,12 @@ MAKEFLAGS += --no-builtin-rules
 .PHONY: init
 init: runtime-init k8s-init service-mesh-init
 
+.PHONY: dev
+dev:
+	@export DOCKER_HOST=$$(limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')
+	@eval $$(minikube docker-env)
+	@tilt up
+
 publish-%:
 	@export DOCKER_HOST=$$(limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')
 	@eval $$(minikube docker-env)
