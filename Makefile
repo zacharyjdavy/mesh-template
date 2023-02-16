@@ -8,6 +8,18 @@ MAKEFLAGS += --no-builtin-rules
 .PHONY: init
 init: runtime-init k8s-init service-mesh-init
 
+publish-%:
+	@export DOCKER_HOST=$$(limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')
+	@eval $$(minikube docker-env)
+	$(MAKE) -C $* containerize
+	$(MAKE) -C $* publish
+
+.PHONY: tunnel
+tunnel:
+	@export DOCKER_HOST=$$(limactl list docker --format 'unix://{{.Dir}}/sock/docker.sock')
+	@eval $$(minikube docker-env)
+	@kubectl port-forward -n istio-system service/istio-ingressgateway 8080:80
+
 .PHONY: rm
 rm: k8s-rm runtime-rm
 
